@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo de Pontuação - Regra dos 14 Pontos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        header img {
+            width: 100px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 14px 20px;
+            background-color: #27ae60;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            max-width: 200px;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2ecc71;
+        }
+
+        .result {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .estouro {
+            color: #e74c3c;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .quadra-formacao {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .quadra-formacao table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .quadra-formacao th,
+        .quadra-formacao td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .quadra-formacao th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .atleta-card {
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            display: inline-block;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .atleta-card:hover {
+            background-color: #bdc3c7;
+            transform: scale(1.05);
+        }
+
+        .atleta-card.selected {
+            background-color: #a2d9ce;
+        }
+
+        .atletas-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #refazer {
+            background-color: #e74c3c;
+            display: none;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        #refazer:hover {
+            background-color: #c0392b;
+        }
+
+        .remove-button {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .remove-button:hover {
+            background-color: #c0392b;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .container {
+                padding: 15px;
+                width: 100%;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .quadra-formacao table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=196,fit=crop,q=95/YNqOOO8wN9uwD6gD/logo-fcbcr-mjEPPPDo6yfQLqbM.png" alt="Logo FCBCR">
+        <h1>Cadastro de Atletas e Formação da Quadra</h1>
+    </header>
+
+    <div class="container">
+        <form id="form">
+            <div class="form-group">
+                <label for="nome">Nome do Atleta:</label>
+                <input type="text" id="nome" placeholder="Nome do atleta" required>
+            </div>
+            <div class="form-group">
+                <label for="classe">Classe funcional do Atleta:</label>
+                <select id="classe" required>
+                    <option value="1">Classe 1</option>
+                    <option value="1.5">Classe 1.5</option>
+                    <option value="2">Classe 2</option>
+                    <option value="2.5">Classe 2.5</option>
+                    <option value="3">Classe 3</option>
+                    <option value="3.5">Classe 3.5</option>
+                    <option value="4">Classe 4</option>
+                    <option value="4.5">Classe 4.5</option>
+                </select>
+            </div>
+            <button type="submit">Cadastrar Atleta</button>
+        </form>
+
+        <h2>Escolha os Atletas para a Quadra</h2>
+        <div id="atletas-container" class="atletas-container"></div>
+
+        <h2>Atletas Selecionados para a Quadra</h2>
+        <div id="quadra-container"></div>
+
+        <div class="result" id="result"></div>
+        <div id="alert" class="estouro"></div>
+        <div class="quadra-formacao" id="quadra-formacao"></div>
+        <button id="refazer" onclick="reiniciar()">Refazer</button>
+    </div>
+
+    <script>
+        // Inicializa a lista de atletas
+        let atletas = [];
+
+        // Adiciona atleta ao localStorage
+        function cadastrarAtleta(nome, classe) {
+            const atleta = {
+                nome,
+                classe
+            };
+            atletas.push(atleta);
+            localStorage.setItem('atletas', JSON.stringify(atletas));
+        }
+
+        // Carregar atletas do localStorage
+        function carregarAtletas() {
+            let savedAtletas = JSON.parse(localStorage.getItem('atletas')) || [];
+            atletas = savedAtletas;
+
+            const container = document.getElementById('atletas-container');
+            container.innerHTML = '';
+
+            atletas.forEach((atleta, index) => {
+                const card = document.createElement('div');
+                card.classList.add('atleta-card');
+                card.dataset.index = index;
+                card.innerHTML = `<p>${atleta.nome}</p><p>Classe ${atleta.classe}</p>`;
+                card.addEventListener('click', () => selecionarAtleta(card));
+
+                // Adicionando botão para remover do banco de dados
+                const removeButton = document.createElement('button');
+                removeButton.classList.add('remove-button');
+                removeButton.innerText = 'Remover';
+                removeButton.onclick = (e) => {
+                    e.stopPropagation(); // Evita o clique na seleção do atleta
+                    removerAtleta(index);
+                };
+                card.appendChild(removeButton);
+
+                container.appendChild(card);
+            });
+        }
+
+        // Função para remover atleta do banco de dados
+        function removerAtleta(index) {
+            atletas.splice(index, 1);
+            localStorage.setItem('atletas', JSON.stringify(atletas));
+            carregarAtletas(); // Recarrega a lista de atletas após a remoção
+        }
+
+        // Função para selecionar atleta
+        function selecionarAtleta(card) {
+            const selectedAtletas = document.querySelectorAll('.atleta-card.selected');
+            const maxAtletas = 5;
+
+            if (selectedAtletas.length >= maxAtletas && !card.classList.contains('selected')) {
+                alert('Máximo de 5 atletas na quadra!');
+                return;
+            }
+
+            card.classList.toggle('selected');
+            atualizarQuadra();
+        }
+
+        // Atualiza a formação da quadra
+        function atualizarQuadra() {
+            const selectedAtletas = document.querySelectorAll('.atleta-card.selected');
+            const quadraContainer = document.getElementById('quadra-container');
+            const resultElement = document.getElementById('result');
+            const alertElement = document.getElementById('alert');
+            let totalPontuacao = 0;
+
+            // Limpa a formação anterior
+            quadraContainer.innerHTML = '';
+
+            selectedAtletas.forEach(card => {
+                const atleta = atletas[card.dataset.index];
+                totalPontuacao += parseFloat(atleta.classe);
+
+                const div = document.createElement('div');
+                div.classList.add('atleta-quadra');
+                div.innerHTML = `
+                    <p>${atleta.nome} (Classe ${atleta.classe})</p>
+                    <button class="remove-button" onclick="removerJogadorQuadra('${atleta.nome}')">Remover</button>
+                `;
+                quadraContainer.appendChild(div);
+            });
+
+            resultElement.textContent = `Pontuação Total: ${totalPontuacao}`;
+
+            if (totalPontuacao > 14) {
+                alertElement.textContent = 'ESTOURO DE PONTUAÇÃO!';
+                document.getElementById('refazer').style.display = 'block';
+            } else {
+                alertElement.textContent = '';
+            }
+        }
+
+        // Função para remover jogador da quadra
+        function removerJogadorQuadra(nome) {
+            const selectedAtletas = document.querySelectorAll('.atleta-card.selected');
+            selectedAtletas.forEach(card => {
+                if (atletas[card.dataset.index].nome === nome) {
+                    card.classList.remove('selected');
+                    atualizarQuadra();
+                }
+            });
+        }
+
+        // Função para reiniciar a quadra
+        function reiniciar() {
+            document.getElementById('refazer').style.display = 'none';
+            document.getElementById('result').textContent = '';
+            document.getElementById('alert').textContent = '';
+            carregarAtletas();
+        }
+
+        // Evento para envio do formulário
+        document.getElementById('form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const nome = document.getElementById('nome').value;
+            const classe = document.getElementById('classe').value;
+            cadastrarAtleta(nome, classe);
+            carregarAtletas();
+            document.getElementById('form').reset();
+        });
+
+        // Carregar atletas ao iniciar
+        window.onload = carregarAtletas;
+    </script>
+
+</body>
+
+</html>
